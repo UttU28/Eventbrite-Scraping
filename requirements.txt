@@ -1,0 +1,8 @@
+selenium
+beautifulsoup4
+tqdm
+requests
+pyautogui
+schedule
+opencv-python
+logging
