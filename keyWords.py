@@ -1,6 +1,6 @@
+    # "Dubai" : "united-arab-emirates--dby",
 
 locations = {
-    "Dubai" : "united-arab-emirates--dby",
     "Abu_Dhabi" : "united-arab-emirates",
     "Singapore" : "singapore",
     "Hong_Kong" : "hong-kong-sar",
@@ -20,12 +20,13 @@ keyWords = ["Digital Assets", "Digital Security", "Real World Assets", "Digital 
 
 baseURL = "https://www.eventbrite.com/d/tx--texas-city/convention/digital-assets/"
 
-counter = 0
-for keyWord in keyWords:
-    for _, thisLocation in locations.items():
-        for thisFormat in formats:
-            counter += 1
-            thisKeyword = keyWord.lower().replace(' ','-')
-            eventURL = f"https://www.eventbrite.com/d/{thisLocation}/{thisFormat}/{thisKeyword}/?page="
-            print(eventURL)
-print(f"Total number of events: {counter}")
+def getAllLinks():
+    allLinks = []
+    for keyWord in keyWords:
+        for _, thisLocation in locations.items():
+            for thisFormat in formats:
+                thisKeyword = keyWord.lower().replace(' ','-')
+                eventURL = f"https://www.eventbrite.com/d/{thisLocation}/{thisFormat}/{thisKeyword}/?page="
+                allLinks.append(eventURL)
+    print(f"Total number of events: {len(allLinks)}")
+    return allLinks
