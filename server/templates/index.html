@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Event Dashboard</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   </head>
+   <body>
+      <div class="container">
+         <h1>Upcoming Events</h1>
+         <div id="event-list">
+            {% for event_id, event in events.items() %}
+            <div class="event-card">
+               <img src="{{ event['event_logo'] }}" alt="Event Logo" class="event-logo">
+               <h2>{{ event.get('title', 'Untitled Event') }}</h2>
+               <p class="summary">{{ event['summary'] }}</p>
+               <p><strong>Start:</strong> {{ event['start_date'] }}</p>
+               <p><strong>End:</strong> {{ event['end_date'] }}</p>
+               <p><strong>Venue:</strong> {{ event['venue_name'] }} - {{ event['event_address'] }}</p>
+               <p>{{ event['description'] }}</p>
+               {% if event['event_urls'] %}
+               <p><strong>Related Links:</strong></p>
+               <ul>
+                  {% for url in event['event_urls'] %}
+                  <li><a href="{{ url }}" target="_blank">{{ url }}</a></li>
+                  {% endfor %}
+               </ul>
+               {% endif %}
+               {% if event.get('eventURL') %}
+               <p><a href="{{ event['eventURL'] }}" class="button" target="_blank">More Info</a></p>
+               {% endif %}
+            </div>
+            {% endfor %}
+         </div>
+      </div>
+      <script src="{{ url_for('static', filename='script.js') }}"></script>
+      <script>
+         document.addEventListener('DOMContentLoaded', () => {
+             // Lazy loading for event images to improve performance
+             const eventImages = document.querySelectorAll('.event-logo');
+             
+             eventImages.forEach(img => {
+                 img.addEventListener('load', () => {
+                     img.classList.add('loaded');
+                 });
+                 if (img.complete) {
+                     img.classList.add('loaded');
+                 }
+             });
+         
+             // Smooth scrolling for 'More Info' buttons (UX improvement)
+             document.querySelectorAll('.button').forEach(button => {
+                 button.addEventListener('click', (e) => {
+                     e.preventDefault();
+                     const targetUrl = e.target.getAttribute('href');
+                     window.open(targetUrl, '_blank');
+                 });
+             });
+         });
+         
+             
+      </script>
+   </body>
+</html>
