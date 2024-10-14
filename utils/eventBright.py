@@ -3,18 +3,24 @@ import requests
 import sys
 from bs4 import BeautifulSoup
 
+accessTokens = ['VLEMREODHYNVPL6VHIO3', 'VLEMR9ODHYNVPL5VHIO4']
+currentTokenIndex = 0
+
 def makeAPIRequest(url):
-    access_token = 'VLEMREODHYNVPL6VHIO3'
+    global currentTokenIndex
     headers = {
-        'Authorization': f'Bearer {access_token}',
+        'Authorization': f'Bearer {accessTokens[currentTokenIndex]}',
         'Content-Type': 'application/json',
     }
+    
     response = requests.get(url, headers=headers)
+    
     if response.status_code == 200:
         return response.json()
     elif response.status_code == 429:
-        print("\n Limit Exhausted baby")
-        sys.exit()
+        print("\nLimit Exhausted, switching token.")
+        currentTokenIndex = (currentTokenIndex + 1) % len(accessTokens)
+        return makeAPIRequest(url)  # Retry with the new token
     else:
         print(f'Error fetching data from {url}: {response.status_code}')
         return None
@@ -54,7 +60,8 @@ def fetchEventData(eventID):
             }
 
             return eventID, eventData
-        except:
+        except Exception as e:
+            print(f'Error processing event data for ID {eventID}: {e}')
             return eventID, {'hasData': False}
     return eventID, {'hasData': False}
 

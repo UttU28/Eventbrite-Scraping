@@ -39,6 +39,7 @@ def prepareChromeAndSelenium():
 
 def runSelenium(thisDriver, mainLink):
     pageCounter = 1
+    thisTag = mainLink.replace('https://www.eventbrite.com/d/','').split('/')[0]
     while True:
         thisDriver.get(f"{mainLink}{pageCounter}")
         try:
@@ -66,7 +67,7 @@ def runSelenium(thisDriver, mainLink):
                             # print(thisTitle, thisID, thisLink)
 
                             if thisID not in eventData:
-                                eventData[thisID] = {'eventURL': thisLink, 'title': thisTitle}
+                                eventData[thisID] = {'eventURL': thisLink, 'title': thisTitle, 'tag': thisTag}
                 except:
                     print("Exception occurred")
             putDataToFile(eventData)

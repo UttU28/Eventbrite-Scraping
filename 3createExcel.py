@@ -13,13 +13,14 @@ def processTheData(data):
     rows = []
     
     for eventId, eventData in tqdm(data.items(), desc="Processing Events"):
-        title = eventData['title']
-        eventURL = eventData['eventURL']
-        description = eventData['description']
-        venue = eventData['venue_name']
-        startDate = datetime.fromisoformat(eventData['start_date'].replace("Z", "+00:00")).strftime("%B %d, %Y at %I:%M %p")
+        if eventData.get('hasData'):
+            title = eventData['title']
+            eventURL = eventData['eventURL']
+            description = eventData['description']
+            venue = eventData['venue_name']
+            startDate = datetime.fromisoformat(eventData['start_date'].replace("Z", "+00:00")).strftime("%B %d, %Y at %I:%M %p")
 
-        rows.append([title, eventURL, startDate, venue, description])
+            rows.append([title, eventURL, startDate, venue, description])
 
     df = pd.DataFrame(rows, columns=columns)
     return df
@@ -31,10 +32,10 @@ if __name__ == "__main__":
     excel_file = 'events.xlsx'
     
     with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Events')
+        df.to_excel(writer, index=False, sheet_name='UAE-Events')
         
         workbook = writer.book
-        worksheet = writer.sheets['Events']
+        worksheet = writer.sheets['UAE-Events']
         
         hyperlink_format = workbook.add_format({'color': 'blue', 'underline': 1})
         
