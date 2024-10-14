@@ -1,14 +1,19 @@
 import json
 import re
 from tqdm import tqdm
-from eventBright import fetchEventData, appendToJsonFile
+from utils.eventBright import fetchEventData, appendToJsonFile
 
-NEGATIVE_FILTERS = [ 'Workshop', 'Training', 'Digital Marketing' ]
-POSITIVE_FILTERS = [ 'Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit' ]
+NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing']
+POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 
+                    'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 
+                    'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit']
 
 def readAndIterateJson(filePath):
-    with open(filePath, 'r') as jsonFile:
-        return json.load(jsonFile)
+    try:
+        with open(filePath, 'r') as jsonFile:
+            return json.load(jsonFile)
+    except:
+        return {}
 
 def cleanTheText(wholeDict):
     nonAsciiPattern = re.compile(r'[^\x00-\x7F]+')
@@ -34,19 +39,24 @@ def checkPositives(eventData):
     combinedText = eventData['summary'] + ' ' + eventData['description']
     return checkFilters(POSITIVE_FILTERS, combinedText)
 
-def processEvents(data):
-    for eventId, eventData in tqdm(data.items(), desc="Processing Events"):
-        thisEventId, thisEventData = fetchEventData(eventId)
+def processEvents(baseData, existingData):
+    for eventID, eventData in tqdm(baseData.items(), desc="Processing Events"):
+        if eventID in existingData.keys(): continue
         
-        if thisEventData:
+        thisEventID, thisEventData = fetchEventData(eventID)
+        if thisEventData.get('hasData'):
             thisEventData['title'] = eventData['title']
             thisEventData['eventURL'] = eventData['eventURL']
             cleanedEventData = cleanTheText(thisEventData)
 
             if checkNegatives(cleanedEventData) and checkPositives(cleanedEventData):
-                appendToJsonFile(thisEventId, cleanedEventData)
+                appendToJsonFile(thisEventID, cleanedEventData)
+            else: appendToJsonFile(thisEventID, {'hasData': False}) 
+        else:
+            appendToJsonFile(thisEventID, thisEventData)
 
 
 if __name__ == "__main__":
-    data = readAndIterateJson('baseData.json')
-    processEvents(data)
+    baseData = readAndIterateJson('data/baseData.json')
+    existingData = readAndIterateJson('data/eventData.json')
+    processEvents(baseData, existingData)

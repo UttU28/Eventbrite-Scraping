@@ -3,16 +3,16 @@ import json
 
 locations = {
     "Abu_Dhabi" : "united-arab-emirates",
-    "Singapore" : "singapore",
-    "Hong_Kong" : "hong-kong-sar",
-    "London" : "united-kingdom--london",
-    "New_York" : "ny--new-york",
-    "Texas" : "united-states--texas",
-    "Florida" : "united-states--florida",
-    "California" : "united-states--california",
-    "Seoul" : "south-korea--seoul",
-    "Frankfurt" : "germany--frankfurt-am-main",
-    "Geneva" : "switzerland--geneve"
+    # "Singapore" : "singapore",
+    # "Hong_Kong" : "hong-kong-sar",
+    # "London" : "united-kingdom--london",
+    # "New_York" : "ny--new-york",
+    # "Texas" : "united-states--texas",
+    # "Florida" : "united-states--florida",
+    # "California" : "united-states--california",
+    # "Seoul" : "south-korea--seoul",
+    # "Frankfurt" : "germany--frankfurt-am-main",
+    # "Geneva" : "switzerland--geneve"
 }
 
 formats = ["networking", "conventions", "conferences", "galas"]
@@ -36,7 +36,7 @@ def getAllLinks():
 allLinks = getAllLinks()
 
 # Save to a JSON file
-with open('baseLinks.json', 'w') as json_file:
+with open('data/baseLinks.json', 'w') as json_file:
     json.dump(allLinks, json_file, indent=4)
 
-print("Links saved to baseLinks.json")
+print("Links saved to data/baseLinks.json")

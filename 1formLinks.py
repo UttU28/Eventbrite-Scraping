@@ -1,17 +1,17 @@
 import json
 from datetime import datetime, timezone
 from time import sleep
-from primaryScraping import runSelenium, prepareChromeAndSelenium
+from utils.primaryScraping import runSelenium, prepareChromeAndSelenium
 
 def getCurrentTime(): return int(round(datetime.now(timezone.utc).timestamp()))
 
 def readDataFromJson():
-    with open('baseLinks.json', 'r') as json_file:
+    with open('data/baseLinks.json', 'r') as json_file:
         baseLinks = json.load(json_file)
     return baseLinks
 
 def saveDataToJSON(baseLinks):
-    with open('baseLinks.json', 'w') as json_file:
+    with open('data/baseLinks.json', 'w') as json_file:
         json.dump(baseLinks, json_file, indent=4)
 
 def checkIfToday(currentTime):

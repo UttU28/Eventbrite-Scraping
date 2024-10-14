@@ -18,14 +18,14 @@ options.add_argument("--disable-notifications")
 
 def getDataFromFile():
     try:
-        with open('baseData.json', 'r') as jsonFile:
+        with open('data/baseData.json', 'r') as jsonFile:
             allEventData = json.load(jsonFile)
     except FileNotFoundError:
         allEventData = {}
     return allEventData
 
 def putDataToFile(taazaMaal):
-    with open('baseData.json', 'w') as jsonFile:
+    with open('data/baseData.json', 'w') as jsonFile:
         json.dump(taazaMaal, jsonFile, indent=4)
 
 def prepareChromeAndSelenium():
@@ -43,7 +43,7 @@ def runSelenium(thisDriver, mainLink):
         thisDriver.get(f"{mainLink}{pageCounter}")
         try:
             eventData = getDataFromFile()
-            eventList = WebDriverWait(thisDriver, 3).until(
+            eventList = WebDriverWait(thisDriver, 1.5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "ul[class^='SearchResultPanelContentEventCardList-module__eventList']"))
             )
             if not eventList: 

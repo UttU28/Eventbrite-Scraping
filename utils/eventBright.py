@@ -1,5 +1,6 @@
 import json
 import requests
+import sys
 from bs4 import BeautifulSoup
 
 def makeAPIRequest(url):
@@ -11,6 +12,9 @@ def makeAPIRequest(url):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()
+    elif response.status_code == 429:
+        print("\n Limit Exhausted baby")
+        sys.exit()
     else:
         print(f'Error fetching data from {url}: {response.status_code}')
         return None
@@ -37,6 +41,7 @@ def fetchEventData(eventID):
             thisVenueName = data1['venue']['name']
 
             eventData = {
+                'hasData': True,
                 'summary': thisSummary,
                 'event_urls': thisEventURLs,
                 'description': thisDescription,
@@ -50,10 +55,10 @@ def fetchEventData(eventID):
 
             return eventID, eventData
         except:
-            return eventID, None
-    return eventID, None
+            return eventID, {'hasData': False}
+    return eventID, {'hasData': False}
 
-def appendToJsonFile(eventID, eventData, filename='eventData.json'):
+def appendToJsonFile(eventID, eventData, filename='data/eventData.json'):
     if eventData is None:
         return
 

@@ -6,3 +6,5 @@ pyautogui
 opencv-python
 logging
 Flask
+pandas
+openpyxl
