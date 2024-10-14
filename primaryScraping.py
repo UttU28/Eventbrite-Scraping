@@ -18,14 +18,14 @@ options.add_argument("--disable-notifications")
 
 def getDataFromFile():
     try:
-        with open('eventData.json', 'r') as jsonFile:
+        with open('baseData.json', 'r') as jsonFile:
             allEventData = json.load(jsonFile)
     except FileNotFoundError:
         allEventData = {}
     return allEventData
 
 def putDataToFile(taazaMaal):
-    with open('eventData.json', 'w') as jsonFile:
+    with open('baseData.json', 'w') as jsonFile:
         json.dump(taazaMaal, jsonFile, indent=4)
 
 def prepareChromeAndSelenium():

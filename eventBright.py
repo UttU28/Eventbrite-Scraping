@@ -12,60 +12,64 @@ def makeAPIRequest(url):
     if response.status_code == 200:
         return response.json()
     else:
-        print(f'Error fetching event data: {response.status_code}')
+        print(f'Error fetching data from {url}: {response.status_code}')
         return None
 
-def fetch_event_data(event_id):
-    url1 = f'https://www.eventbrite.com/api/v3/events/{event_id}/?expand=venue'
+def fetchEventData(eventID):
+    url1 = f'https://www.eventbrite.com/api/v3/events/{eventID}/?expand=venue'
     data1 = makeAPIRequest(url1)
-    url2 = f'https://www.eventbrite.com/api/v3/events/{event_id}/structured_content/?purpose=listing'
+    url2 = f'https://www.eventbrite.com/api/v3/events/{eventID}/structured_content/?purpose=listing'
     data2 = makeAPIRequest(url2)
 
-    if data1 and data2:
-        htmlContent = data2['modules'][0]['data']['body']['text']
-        soup = BeautifulSoup(htmlContent, 'html.parser')
-        thisSummary = soup.get_text(separator=' ', strip=True)
-        thisEventURLs = [a['href'] for a in soup.find_all('a', href=True)]
-        thisDescription = data1['description']['text']
-        thisStartDate = data1['start']['utc']
-        thisEndDate = data1['end']['utc']
-        thisOnlineEvent = data1['online_event']
-        thisIsTicketed = data1['is_externally_ticketed']
-        thisEventLogo = data1['logo']['url']
-        thisEventAddress = data1['venue']['address']['localized_address_display']
-        thisVenueName = data1['venue']['name']
+    if data1 and data2 and not data1.get('online_event'):
+        try:
+            htmlContent = data2['modules'][0]['data']['body']['text']
+            soup = BeautifulSoup(htmlContent, 'html.parser')
+            thisSummary = soup.get_text(separator=' ', strip=True)
+            thisEventURLs = [a['href'] for a in soup.find_all('a', href=True)]
 
-        event_data = {
-            'summary': thisSummary,
-            'event_urls': thisEventURLs,
-            'description': thisDescription,
-            'start_date': thisStartDate,
-            'end_date': thisEndDate,
-            'online_event': thisOnlineEvent,
-            'is_ticketed': thisIsTicketed,
-            'event_logo': thisEventLogo,
-            'event_address': thisEventAddress,
-            'venue_name': thisVenueName
-        }
+            thisDescription = data1['description']['text'].strip()
+            thisStartDate = data1['start']['utc']
+            thisEndDate = data1['end']['utc']
+            thisIsTicketed = data1['is_externally_ticketed']
+            thisEventLogo = data1['logo']['url']
+            thisEventAddress = data1['venue']['address']['localized_address_display']
+            thisVenueName = data1['venue']['name']
 
-        # Append to existing JSON file
-        append_to_json_file(event_id, event_data)
+            eventData = {
+                'summary': thisSummary,
+                'event_urls': thisEventURLs,
+                'description': thisDescription,
+                'start_date': thisStartDate,
+                'end_date': thisEndDate,
+                'is_ticketed': thisIsTicketed,
+                'event_logo': thisEventLogo,
+                'event_address': thisEventAddress,
+                'venue_name': thisVenueName
+            }
 
-def append_to_json_file(event_id, event_data, filename='event_data.json'):
+            return eventID, eventData
+        except:
+            return eventID, None
+    return eventID, None
+
+def appendToJsonFile(eventID, eventData, filename='eventData.json'):
+    if eventData is None:
+        return
+
     try:
-        # Read existing data
         with open(filename, 'r') as f:
             existing_data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         existing_data = {}
 
-    # Add new event data
-    existing_data[event_id] = event_data
+    existing_data[eventID] = eventData
 
-    # Write updated data back to the file
     with open(filename, 'w') as f:
         json.dump(existing_data, f, indent=4)
 
 if __name__ == "__main__":
-    event_id = '965046077797'
-    fetch_event_data(event_id)
+    eventIDs = ['965046077797', '1026778029727']  # Add more event IDs as needed
+    for eventID in eventIDs:
+        eventID, eventData = fetchEventData(eventID)
+        appendToJsonFile(eventID, eventData)
