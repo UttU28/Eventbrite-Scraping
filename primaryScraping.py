@@ -43,32 +43,35 @@ def runSelenium(thisDriver, mainLink):
         thisDriver.get(f"{mainLink}{pageCounter}")
         try:
             eventData = getDataFromFile()
-            eventList = WebDriverWait(thisDriver, 5).until(
+            eventList = WebDriverWait(thisDriver, 3).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "ul[class^='SearchResultPanelContentEventCardList-module__eventList']"))
             )
+            if not eventList: 
+                print(mainLink, "Bacha liyea tuje" )
+                break
             
             eventItems = eventList.find_elements(By.TAG_NAME, "li")
             
             for eventItem in eventItems:
                 try:
-                    try:
-                        eventItem.find_element(By.TAG_NAME, "aside")
-                        continue
+                    try: eventItem.find_element(By.TAG_NAME, "aside")
                     except:
-                        thisData = eventItem.find_elements(By.CSS_SELECTOR, "section.event-card-details")[1]
-                        thisDataa = thisData.find_element(By.CSS_SELECTOR, "a.event-card-link")
-                        thisTitle = thisDataa.find_element(By.TAG_NAME, 'h3').text.strip()
-                        thisID = thisDataa.get_attribute('data-event-id')
-                        thisLink = thisDataa.get_attribute('href')
-                        # print(thisTitle, thisID, thisLink)
+                        try: eventItem.find_element(By.CSS_SELECTOR, "ul[class^='EventCardPromoted-module__root']")
+                        except:
+                            thisData = eventItem.find_elements(By.CSS_SELECTOR, "section.event-card-details")[1]
+                            thisDataa = thisData.find_element(By.CSS_SELECTOR, "a.event-card-link")
+                            thisTitle = thisDataa.find_element(By.TAG_NAME, 'h3').text.strip()
+                            thisID = thisDataa.get_attribute('data-event-id')
+                            thisLink = thisDataa.get_attribute('href').replace('?aff=ebdssbdestsearch', '')
+                            # print(thisTitle, thisID, thisLink)
 
-                        if thisID not in eventData:
-                            eventData[thisID] = {'eventURL': thisLink, 'title': thisTitle}
+                            if thisID not in eventData:
+                                eventData[thisID] = {'eventURL': thisLink, 'title': thisTitle}
                 except:
                     print("Exception occurred")
             putDataToFile(eventData)
         except:
-            print("Pages Khatam Bhailu!")
+            # print("Pages Khatam Bhailu!")
             break
         pageCounter += 1
 
