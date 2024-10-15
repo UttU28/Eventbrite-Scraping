@@ -43,7 +43,7 @@ def main():
                     'Event URL': event_info['eventURL'],
                     'Venue Name': event_info['venue_name'],
                     'Description': event_info['description'],
-                    'Original Start Date': event_info['start_date']  # Keep original for sorting
+                    'OGStDate': event_info['start_date']  # Keep original for sorting
                 })
 
     excel_file = 'All_Events.xlsx'
@@ -52,9 +52,9 @@ def main():
         for tag, events in tagged_data.items():
             df = pd.DataFrame(events)
             
-            # Sort the DataFrame by the original start date
-            df.sort_values(by='Original Start Date', inplace=True)
-            df.drop(columns=['Original Start Date'], inplace=True)  # Remove the helper column
+            # Sort the DataFrame by the OGStDate
+            df.sort_values(by='OGStDate', inplace=True)
+            df.drop(columns=['OGStDate'], inplace=True)  # Remove the helper column
             
             df.to_excel(writer, index=False, sheet_name=f'{tag}-Events')
             

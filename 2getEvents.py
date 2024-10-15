@@ -74,3 +74,5 @@ if __name__ == "__main__":
         except ValueError as e:
             print(f"Invalid token index: {e}")
             sys.exit(1)
+    else:
+        print("API value naakh")

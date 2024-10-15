@@ -56,7 +56,7 @@ def fetchEventData(eventID, API_KEY):
             }
 
             return eventID, eventData
-        except Exception as e:
+        except:
             # print(f'Error processing event data for ID {eventID}: {e}')
             return eventID, {'hasData': False}
     return eventID, {'hasData': False}
