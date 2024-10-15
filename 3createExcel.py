@@ -1,49 +1,78 @@
 import json
-import re
-from tqdm import tqdm
 import pandas as pd
-from datetime import datetime
+import re
+
+# Define negative and positive filters
+NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club']
+POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 
+                    'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit', 'Venture Capital', 'Fintech']
 
 def readAndIterateJson(filePath):
     with open(filePath, 'r') as jsonFile:
         return json.load(jsonFile)
 
-def processTheData(data):
-    columns = ['Title', 'Event URL', 'Start Date', 'Venue Name', 'Description']
-    rows = []
-    
-    for eventId, eventData in tqdm(data.items(), desc="Processing Events"):
-        if eventData.get('hasData'):
-            title = eventData['title']
-            eventURL = eventData['eventURL']
-            description = eventData['description']
-            venue = eventData['venue_name']
-            startDate = datetime.fromisoformat(eventData['start_date'].replace("Z", "+00:00")).strftime("%B %d, %Y at %I:%M %p")
+def checkFilters(filterList, mainText):
+    mainText = re.sub(r'\s+', ' ', mainText.lower()).strip()
+    return any(filterItem.lower() in mainText for filterItem in filterList)
 
-            rows.append([title, eventURL, startDate, venue, description])
+def checkNegatives(eventData):
+    return not checkFilters(NEGATIVE_FILTERS, eventData['title'])
 
-    df = pd.DataFrame(rows, columns=columns)
-    return df
+def checkPositives(eventData):
+    combinedText = eventData['summary'] + ' ' + eventData['description']
+    return checkFilters(POSITIVE_FILTERS, combinedText)
 
-if __name__ == "__main__":
-    data = readAndIterateJson('data/eventData.json')
-    df = processTheData(data)
+def main():
+    data = readAndIterateJson('data/eventData.json')  
+    tagged_data = {}
 
-    excel_file = 'events.xlsx'
+    for event_id, event_info in data.items():
+        if event_info.get('hasData'):
+            # Check for filters before processing
+            if checkNegatives(event_info) and checkPositives(event_info):
+                tag = event_info['tag']
+                if tag not in tagged_data:
+                    tagged_data[tag] = []
+                
+                # Convert start_date to the desired format
+                start_date = pd.to_datetime(event_info['start_date']).strftime('%b %d %Y')
+                
+                tagged_data[tag].append({
+                    'Title': event_info['title'],
+                    'Start Date': start_date,  # Use the formatted date here
+                    'Event URL': event_info['eventURL'],
+                    'Venue Name': event_info['venue_name'],
+                    'Description': event_info['description'],
+                    'Original Start Date': event_info['start_date']  # Keep original for sorting
+                })
+
+    excel_file = 'All_Events.xlsx'
     
     with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='UAE-Events')
-        
-        workbook = writer.book
-        worksheet = writer.sheets['UAE-Events']
-        
-        hyperlink_format = workbook.add_format({'color': 'blue', 'underline': 1})
-        
-        for row in range(1, len(df) + 1):  # Start from 1 to skip the header
-            worksheet.write_url(row, 1, df.iloc[row - 1, 1], hyperlink_format)  # Column 1 is 'Event URL'
-        
-        worksheet.set_column('A:A', max(df['Title'].str.len().max(), len('Title')) + 2)
-        worksheet.set_column('C:C', max(df['Start Date'].str.len().max(), len('Start Date')) + 2)
-        worksheet.set_column('D:D', max(df['Venue Name'].str.len().max(), len('Venue Name')) + 2)
+        for tag, events in tagged_data.items():
+            df = pd.DataFrame(events)
+            
+            # Sort the DataFrame by the original start date
+            df.sort_values(by='Original Start Date', inplace=True)
+            df.drop(columns=['Original Start Date'], inplace=True)  # Remove the helper column
+            
+            df.to_excel(writer, index=False, sheet_name=f'{tag}-Events')
+            
+            workbook = writer.book
+            worksheet = writer.sheets[f'{tag}-Events']
+            
+            hyperlink_format = workbook.add_format({'color': 'blue', 'underline': 1})
+            
+            for row in range(1, len(df) + 1):
+                worksheet.write_url(row, 2, df.iloc[row - 1, 2], hyperlink_format)  # Updated to correct column index for URL
+            
+            worksheet.set_column('A:A', 50)
+            worksheet.set_column('B:B', 20)
+            worksheet.set_column('C:C', 20)
+            worksheet.set_column('D:D', 40)
+            worksheet.set_column('E:E', max(df['Description'].str.len().max(), len('Description')) + 2)
 
     print(f"Data successfully exported to {excel_file} with clickable links.")
+
+if __name__ == "__main__":
+    main()

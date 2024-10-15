@@ -3,13 +3,10 @@ import requests
 import sys
 from bs4 import BeautifulSoup
 
-accessTokens = ['VLEMREODHYNVPL6VHIO3', 'VLEMR9ODHYNVPL5VHIO4']
-currentTokenIndex = 0
 
-def makeAPIRequest(url):
-    global currentTokenIndex
+def makeAPIRequest(url, API_KEY):
     headers = {
-        'Authorization': f'Bearer {accessTokens[currentTokenIndex]}',
+        'Authorization': f'Bearer {API_KEY}',
         'Content-Type': 'application/json',
     }
     
@@ -18,18 +15,17 @@ def makeAPIRequest(url):
     if response.status_code == 200:
         return response.json()
     elif response.status_code == 429:
-        print("\nLimit Exhausted, switching token.")
-        currentTokenIndex = (currentTokenIndex + 1) % len(accessTokens)
-        return makeAPIRequest(url)  # Retry with the new token
+        print(f"\nLimit Exhausted, switch the tokens index and try again")
+        sys.exit()
     else:
         print(f'Error fetching data from {url}: {response.status_code}')
         return None
 
-def fetchEventData(eventID):
+def fetchEventData(eventID, API_KEY):
     url1 = f'https://www.eventbrite.com/api/v3/events/{eventID}/?expand=venue'
-    data1 = makeAPIRequest(url1)
+    data1 = makeAPIRequest(url1, API_KEY)
     url2 = f'https://www.eventbrite.com/api/v3/events/{eventID}/structured_content/?purpose=listing'
-    data2 = makeAPIRequest(url2)
+    data2 = makeAPIRequest(url2, API_KEY)
 
     if data1 and data2 and not data1.get('online_event'):
         try:
@@ -61,7 +57,7 @@ def fetchEventData(eventID):
 
             return eventID, eventData
         except Exception as e:
-            print(f'Error processing event data for ID {eventID}: {e}')
+            # print(f'Error processing event data for ID {eventID}: {e}')
             return eventID, {'hasData': False}
     return eventID, {'hasData': False}
 
@@ -81,7 +77,7 @@ def appendToJsonFile(eventID, eventData, filename='data/eventData.json'):
         json.dump(existing_data, f, indent=4)
 
 if __name__ == "__main__":
-    eventIDs = ['965046077797', '1026778029727']  # Add more event IDs as needed
+    eventIDs = ['965046077797', '1026778029727']
     for eventID in eventIDs:
-        eventID, eventData = fetchEventData(eventID)
+        eventID, eventData = fetchEventData(eventID, 'YOUR_API_KEY_HERE')
         appendToJsonFile(eventID, eventData)
