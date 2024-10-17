@@ -1,13 +1,12 @@
-import json
+import json, time
 import re
 import sys
 from tqdm import tqdm
 from utils.eventBright import fetchEventData, appendToJsonFile
+from time import sleep
 
-NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon']
-POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 
-                    'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 
-                    'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit']
+NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club', 'Networking']
+POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit']
 
 accessTokens = ['N7TRZJ6UEDZ7AXI36BZR', 'HTEBOZLFTTQHGGRHGH', 'T2N7FX43RKVI3OFQRE', 'VLEMREODHYNVPL6VHIO3']
 
@@ -43,36 +42,42 @@ def checkPositives(eventData):
     return checkFilters(POSITIVE_FILTERS, combinedText)
 
 def processEvents(baseData, existingData, API_KEY):
-    for eventID, eventData in tqdm(baseData.items(), desc="Processing Events"):
-        if eventID in existingData.keys(): continue
-        
-        thisEventID, thisEventData = fetchEventData(eventID, API_KEY)
-        if thisEventData.get('hasData'):
-            thisEventData['tag'] = eventData['tag']
-            thisEventData['title'] = eventData['title']
-            thisEventData['eventURL'] = eventData['eventURL']
-            cleanedEventData = cleanTheText(thisEventData)
+    try:
+        for eventID, eventData in tqdm(baseData.items(), desc="Processing Events"):
+            if eventID in existingData.keys(): continue
+            
+            thisEventID, thisEventData = fetchEventData(eventID, API_KEY)
+            if thisEventData.get('hasData') == 'SLEEP':
+                break
 
-            appendToJsonFile(thisEventID, cleanedEventData)
-            # if checkNegatives(cleanedEventData) and checkPositives(cleanedEventData):
-            #     appendToJsonFile(thisEventID, cleanedEventData)
-            # else: appendToJsonFile(thisEventID, {'hasData': False}) 
-        else:
-            appendToJsonFile(thisEventID, thisEventData)
+            if thisEventData.get('hasData'):
+                thisEventData['tag'] = eventData['tag']
+                thisEventData['title'] = eventData['title']
+                thisEventData['eventURL'] = eventData['eventURL']
+                cleanedEventData = cleanTheText(thisEventData)
 
+                appendToJsonFile(thisEventID, cleanedEventData)
+                # if checkNegatives(cleanedEventData) and checkPositives(cleanedEventData):
+                #     appendToJsonFile(thisEventID, cleanedEventData)
+                # else: appendToJsonFile(thisEventID, {'hasData': False}) 
+            else:
+                appendToJsonFile(thisEventID, thisEventData)
+    except:
+        pass
+
+def countdown(seconds):
+    for i in range(seconds, 0, -1):
+        sys.stdout.write(f"\r{i}... ")
+        sys.stdout.flush()
+        time.sleep(1)
+    sys.stdout.write("\rTime's up!    \n")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        try:
-            currentTokenIndex = int(sys.argv[1])
-            if currentTokenIndex < 0 or currentTokenIndex >= len(accessTokens):
-                raise ValueError("Token index out of range.")
-            else:
-                baseData = readAndIterateJson('data/baseData.json')
-                existingData = readAndIterateJson('data/eventData.json')
-                processEvents(baseData, existingData, accessTokens[currentTokenIndex])
-        except ValueError as e:
-            print(f"Invalid token index: {e}")
-            sys.exit(1)
-    else:
-        print("API value naakh")
+    currentTokenIndex = 1
+    while True:
+        baseData = readAndIterateJson('data/baseData.json')
+        existingData = readAndIterateJson('data/eventData.json')
+        processEvents(baseData, existingData, accessTokens[currentTokenIndex])
+        currentTokenIndex = (currentTokenIndex + 1) % 4
+        print(f'SWITCHING THE API KEY to {currentTokenIndex}, going in SLEEP')
+        countdown(15*60)

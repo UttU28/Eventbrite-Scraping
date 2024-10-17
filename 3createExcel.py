@@ -2,10 +2,8 @@ import json
 import pandas as pd
 import re
 
-# Define negative and positive filters
-NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club']
-POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 
-                    'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit', 'Venture Capital', 'Fintech']
+NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club', 'Networking']
+POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit', 'Venture Capital', 'Fintech']
 
 def readAndIterateJson(filePath):
     with open(filePath, 'r') as jsonFile:
@@ -28,22 +26,20 @@ def main():
 
     for event_id, event_info in data.items():
         if event_info.get('hasData'):
-            # Check for filters before processing
             if checkNegatives(event_info) and checkPositives(event_info):
                 tag = event_info['tag']
                 if tag not in tagged_data:
                     tagged_data[tag] = []
                 
-                # Convert start_date to the desired format
                 start_date = pd.to_datetime(event_info['start_date']).strftime('%b %d %Y')
                 
                 tagged_data[tag].append({
                     'Title': event_info['title'],
-                    'Start Date': start_date,  # Use the formatted date here
+                    'Start Date': start_date,
                     'Event URL': event_info['eventURL'],
                     'Venue Name': event_info['venue_name'],
                     'Description': event_info['description'],
-                    'OGStDate': event_info['start_date']  # Keep original for sorting
+                    'OGStDate': event_info['start_date']
                 })
 
     excel_file = 'All_Events.xlsx'
@@ -52,9 +48,8 @@ def main():
         for tag, events in tagged_data.items():
             df = pd.DataFrame(events)
             
-            # Sort the DataFrame by the OGStDate
             df.sort_values(by='OGStDate', inplace=True)
-            df.drop(columns=['OGStDate'], inplace=True)  # Remove the helper column
+            df.drop(columns=['OGStDate'], inplace=True)
             
             df.to_excel(writer, index=False, sheet_name=f'{tag}-Events')
             
@@ -64,7 +59,7 @@ def main():
             hyperlink_format = workbook.add_format({'color': 'blue', 'underline': 1})
             
             for row in range(1, len(df) + 1):
-                worksheet.write_url(row, 2, df.iloc[row - 1, 2], hyperlink_format)  # Updated to correct column index for URL
+                worksheet.write_url(row, 2, df.iloc[row - 1, 2], hyperlink_format)
             
             worksheet.set_column('A:A', 50)
             worksheet.set_column('B:B', 20)

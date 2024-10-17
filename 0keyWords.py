@@ -19,7 +19,7 @@ locations = {
 formats = ["networking", "conventions", "conferences", "galas"]
 
 keyWords = ["Digital Assets", "Digital Security", "Real World Assets", "Digital Tokenization", "Fintech", "Real Estate Tokenization", "Blockchain", "Tokenization", "Token Summit", "Crypto Summit"]
-
+keyWords = ["Geothermal", "Clean Energy", "Green energy"]
 baseURL = "https://www.eventbrite.com/d/tx--texas-city/convention/digital-assets/"
 
 def loadExistingLinks(filePath):
