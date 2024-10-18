@@ -4,6 +4,21 @@ import re
 
 NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club', 'Networking']
 POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit', 'Venture Capital', 'Fintech']
+POSITIVE_FILTERS = [ "Geothermal", "Clean Energy", "Green energy", "Sustainable Practices", "Renewable Resources", "Eco-friendly", "Carbon Neutral", "Solar Power", "Wind Energy", "Hydropower", "Energy Efficiency", "Zero Emissions", "Circular Economy", "Organic Farming", "Biodiversity Conservation", "Electric Vehicles", "Waste Reduction", "Sustainable Agriculture" ]
+
+locations = {
+    "singapore": "Singapore",
+    "united-arab-emirates": "Abu_Dhabi",
+    "hong-kong-sar": "Hong_Kong",
+    "united-kingdom--london": "London",
+    "ny--new-york": "New_York",
+    "united-states--texas": "Texas",
+    "united-states--florida": "Florida",
+    "united-states--california": "California",
+    "south-korea--seoul": "Seoul",
+    "germany--frankfurt-am-main": "Frankfurt",
+    "switzerland--geneve": "Geneva"
+}
 
 def readAndIterateJson(filePath):
     with open(filePath, 'r') as jsonFile:
@@ -51,10 +66,10 @@ def main():
             df.sort_values(by='OGStDate', inplace=True)
             df.drop(columns=['OGStDate'], inplace=True)
             
-            df.to_excel(writer, index=False, sheet_name=f'{tag}-Events')
+            df.to_excel(writer, index=False, sheet_name=f'{locations[tag]}-Events')
             
             workbook = writer.book
-            worksheet = writer.sheets[f'{tag}-Events']
+            worksheet = writer.sheets[f'{locations[tag]}-Events']
             
             hyperlink_format = workbook.add_format({'color': 'blue', 'underline': 1})
             

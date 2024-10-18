@@ -1,4 +1,4 @@
-import json, time
+import json
 import re
 import sys
 from tqdm import tqdm
@@ -43,7 +43,7 @@ def checkPositives(eventData):
 
 def processEvents(baseData, existingData, API_KEY):
     try:
-        for eventID, eventData in tqdm(baseData.items(), desc="Processing Events"):
+        for eventID, eventData in tqdm(baseData.items(), desc="Processing Events", ascii=' >-'):
             if eventID in existingData.keys(): continue
             
             thisEventID, thisEventData = fetchEventData(eventID, API_KEY)
@@ -69,7 +69,7 @@ def countdown(seconds):
     for i in range(seconds, 0, -1):
         sys.stdout.write(f"\r{i}... ")
         sys.stdout.flush()
-        time.sleep(1)
+        sleep(1)
     sys.stdout.write("\rTime's up!    \n")
 
 if __name__ == "__main__":
