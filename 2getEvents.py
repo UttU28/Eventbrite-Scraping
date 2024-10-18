@@ -80,4 +80,4 @@ if __name__ == "__main__":
         processEvents(baseData, existingData, accessTokens[currentTokenIndex])
         currentTokenIndex = (currentTokenIndex + 1) % 4
         print(f'SWITCHING THE API KEY to {currentTokenIndex}, going in SLEEP')
-        countdown(15*60)
+        countdown(10*60)
