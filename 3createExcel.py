@@ -4,7 +4,7 @@ import re
 
 NEGATIVE_FILTERS = ['Workshop', 'Training', 'Digital Marketing', 'Job Fair', 'Hackathon', 'Career Consultation', 'Biologics', 'Meditation', 'Book Club', 'Networking']
 POSITIVE_FILTERS = ['Digital Assets', 'Digital Security', 'Real World Assets', 'Digital Tokenization', 'Fintech', 'Real Estate Tokenization', 'Blockchain', 'Tokenization', 'Token Summit', 'Crypto Summit', 'Venture Capital', 'Fintech']
-POSITIVE_FILTERS = [ "Geothermal", "Clean Energy", "Green energy", "Sustainable Practices", "Renewable Resources", "Eco-friendly", "Carbon Neutral", "Solar Power", "Wind Energy", "Hydropower", "Energy Efficiency", "Zero Emissions", "Circular Economy", "Organic Farming", "Biodiversity Conservation", "Electric Vehicles", "Waste Reduction", "Sustainable Agriculture" ]
+# POSITIVE_FILTERS = [ "Geothermal", "Clean Energy", "Green energy", "Sustainable Practices", "Renewable Resources", "Eco-friendly", "Carbon Neutral", "Solar Power", "Wind Energy", "Hydropower", "Energy Efficiency", "Zero Emissions", "Circular Economy", "Organic Farming", "Biodiversity Conservation", "Electric Vehicles", "Waste Reduction", "Sustainable Agriculture" ]
 
 locations = {
     "singapore": "Singapore",
@@ -57,7 +57,8 @@ def main():
                     'OGStDate': event_info['start_date']
                 })
 
-    excel_file = 'All_Events.xlsx'
+    excel_file = 'eventBrightEvents.xlsx'
+    # excel_file = 'All_Events.xlsx'
     
     with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
         for tag, events in tagged_data.items():
